@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的做饭教程库</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#16213a;--sub:#5d6678;--line:#d9dee7;--blue:#2c4a9e;--chili:#d4362b;
+--bili:#1a9bd0;--xhs:#e5392f;--dy:#2b2d3a;--yt:#b8302a;--wb:#e08a1e;--other:#6b7a90;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161f;--card:#1a2030;--ink:#e8ecf5;--sub:#9aa5ba;--line:#2b3448;--blue:#8fa9f0;--dy:#8b90a8}}
+:root[data-theme="dark"]{--bg:#12161f;--card:#1a2030;--ink:#e8ecf5;--sub:#9aa5ba;--line:#2b3448;--blue:#8fa9f0;--dy:#8b90a8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 20px 64px}
+h1{font:900 clamp(32px,6vw,52px)/1.15 "Noto Serif SC","Songti SC",serif;margin:0 0 6px;letter-spacing:.02em}
+.lead{color:var(--sub);margin:0 0 28px}
+.add{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.add .full{grid-column:1/-1}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 11px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+textarea{resize:vertical;min-height:44px}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hint{color:var(--sub);font-size:14px}
+.hint b{color:var(--ink)}
+.btn{font:inherit;font-weight:600;border:0;border-radius:6px;padding:9px 20px;background:var(--blue);color:#fff;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#12161f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#12161f}}
+.tools{margin:28px 0 14px;display:grid;gap:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-size:14px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:3px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c,var(--other));border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.card.done{opacity:.6}
+.meta{font-size:13px;color:var(--sub);display:flex;justify-content:space-between}
+.meta .p{color:var(--c);font-weight:700}
+.card h2{font:600 19px/1.4 "Noto Serif SC","Songti SC",serif;margin:0}
+.card h2 a{color:inherit;text-decoration:none}
+.card h2 a:hover{text-decoration:underline;text-decoration-color:var(--c)}
+.note{margin:0;font-size:14px;color:var(--sub)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:13px;color:var(--blue);cursor:pointer;background:none;border:0;padding:0}
+.acts{margin-top:auto;display:flex;gap:14px;padding-top:4px}
+.link{font:inherit;font-size:14px;background:none;border:0;padding:0;color:var(--sub);cursor:pointer}
+.link:hover{color:var(--ink)}
+.link.del:hover{color:var(--chili)}
+.empty{grid-column:1/-1;text-align:center;color:var(--sub);padding:48px 0}
+@media (max-width:600px){.add{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>我的做饭教程库</h1>
+  <p class="lead">刷到好教程，把链接贴进来。B站、小红书、抖音、YouTube 的教程都收在这一个地方。</p>
+
+  <div class="add">
+    <div class="full"><input id="url" placeholder="粘贴教程链接" aria-label="教程链接"></div>
+    <input id="title" placeholder="菜名或标题，例如：红烧肉" aria-label="标题">
+    <input id="tags" placeholder="标签，用逗号分隔，例如：家常菜, 30分钟" aria-label="标签">
+    <div class="full"><textarea id="note" placeholder="备注：火候、关键步骤、要买的食材……" aria-label="备注"></textarea></div>
+    <div class="full row"><span class="hint" id="detect">来源会根据链接自动识别</span><button class="btn" id="save">保存教程</button></div>
+  </div>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="搜索菜名、备注或标签" aria-label="搜索">
+    <div class="chips" id="plats"></div>
+    <div class="chips" id="tagbar"></div>
+  </div>
+
+  <div class="grid" id="list"></div>
+</div>
+
+<script>
+var PLATS=[
+ {k:"bili",n:"B站",re:/bilibili\.com|b23\.tv/i},
+ {k:"xhs",n:"小红书",re:/xiaohongshu\.com|xhslink\.com/i},
+ {k:"dy",n:"抖音",re:/douyin\.com|iesdouyin\.com/i},
+ {k:"yt",n:"YouTube",re:/youtube\.com|youtu\.be/i},
+ {k:"wb",n:"微博",re:/weibo\.(com|cn)/i},
+ {k:"other",n:"其他",re:/./}
+];
+var KEY="cooking-collection-v1",items=[],fp="all",ft="";
+function load(){try{var r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return null}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){}}
+function plat(u){for(var i=0;i<PLATS.length;i++)if(PLATS[i].re.test(u))return PLATS[i];return PLATS[5]}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function safeUrl(u){u=u.trim();if(!u)return"";if(!/^https?:\/\//i.test(u))u="https://"+u;try{var p=new URL(u);return/^https?:$/.test(p.protocol)?p.href:""}catch(e){return""}}
+
+items=load()||[
+ {id:1,url:"https://www.bilibili.com/",title:"示例：番茄炒蛋",tags:["家常菜","10分钟"],note:"先炒蛋再盛出，番茄出汁后再合并。这是示例，可以删除。",done:false,t:Date.now()},
+ {id:2,url:"https://www.xiaohongshu.com/",title:"示例：葱油拌面",tags:["面食","快手"],note:"小火慢熬葱段到焦黄。这是示例，可以删除。",done:true,t:Date.now()-1}
+];
+
+function render(){
+  var q=document.getElementById("q").value.trim().toLowerCase();
+  var shown=items.filter(function(it){
+    if(fp!=="all"&&plat(it.url).k!==fp)return false;
+    if(ft&&it.tags.indexOf(ft)<0)return false;
+    return !q||(it.title+it.note+it.tags.join(" ")).toLowerCase().indexOf(q)>=0;
+  }).sort(function(a,b){return b.t-a.t});
+
+  var pb=document.getElementById("plats");pb.textContent="";
+  var used={};items.forEach(function(it){used[plat(it.url).k]=1});
+  [{k:"all",n:"全部"}].concat(PLATS.filter(function(p){return used[p.k]})).forEach(function(p){
+    var b=el("button","chip",p.n);b.setAttribute("aria-pressed",fp===p.k);
+    b.onclick=function(){fp=p.k;render()};pb.appendChild(b)});
+
+  var tb=document.getElementById("tagbar");tb.textContent="";
+  var all={};items.forEach(function(it){it.tags.forEach(function(t){all[t]=1})});
+  Object.keys(all).forEach(function(t){
+    var b=el("button","chip","#"+t);b.setAttribute("aria-pressed",ft===t);
+    b.onclick=function(){ft=(ft===t?"":t);render()};tb.appendChild(b)});
+
+  var g=document.getElementById("list");g.textContent="";
+  if(!shown.length){g.appendChild(el("div","empty",items.length?"没有符合条件的教程，换个筛选试试":"还没有教程。在上面粘贴第一个链接吧"));return}
+  shown.forEach(function(it){
+    var p=plat(it.url),c=el("article","card"+(it.done?" done":""));
+    c.style.setProperty("--c","var(--"+p.k+")");
+    var m=el("div","meta");m.appendChild(el("span","p",p.n));
+    m.appendChild(el("span",null,new Date(it.t).toLocaleDateString("zh-CN")));c.appendChild(m);
+    var h=el("h2"),a=el("a",null,(it.done?"✓ ":"")+it.title);
+    a.href=it.url;a.target="_blank";a.rel="noopener noreferrer";h.appendChild(a);c.appendChild(h);
+    if(it.note)c.appendChild(el("p","note",it.note));
+    if(it.tags.length){var tg=el("div","tags");it.tags.forEach(function(t){
+      var b=el("button","tag","#"+t);b.onclick=function(){ft=t;render()};tg.appendChild(b)});c.appendChild(tg)}
+    var ac=el("div","acts"),d=el("button","link",it.done?"标为没做过":"标为做过了");
+    d.onclick=function(){it.done=!it.done;persist();render()};
+    var x=el("button","link del","删除");
+    x.onclick=function(){items=items.filter(function(y){return y!==it});persist();render()};
+    ac.appendChild(d);ac.appendChild(x);c.appendChild(ac);g.appendChild(c);
+  });
+}
+
+document.getElementById("url").addEventListener("input",function(e){
+  var u=safeUrl(e.target.value),h=document.getElementById("detect");
+  h.textContent="";
+  if(!u){h.textContent="来源会根据链接自动识别";return}
+  h.appendChild(document.createTextNode("识别为："));h.appendChild(el("b",null,plat(u).n));
+});
+document.getElementById("save").onclick=function(){
+  var u=safeUrl(document.getElementById("url").value),t=document.getElementById("title").value.trim();
+  if(!u){alert("请先粘贴一个有效的教程链接");return}
+  if(!t){alert("给它起个名字吧，方便以后搜索");return}
+  var tags=document.getElementById("tags").value.split(/[,，、]/).map(function(s){return s.trim()}).filter(Boolean);
+  items.push({id:Date.now(),url:u,title:t,tags:tags,note:document.getElementById("note").value.trim(),done:false,t:Date.now()});
+  persist();["url","title","tags","note"].forEach(function(i){document.getElementById(i).value=""});
+  document.getElementById("detect").textContent="已保存。来源会根据链接自动识别";
+  render();
+};
+document.getElementById("q").addEventListener("input",render);
+render();
+</script>
+</body>
+</html>
